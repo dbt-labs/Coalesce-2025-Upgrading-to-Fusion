@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_customers_with_source
+    description: "Staging customer data using source() function - demonstrates best practice for referencing seeds"
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "Customer first name"
+      - name: last_name
+        description: "Customer last name"
+      - name: customer_name
+        description: "Full customer name (first + last)"
+        tests:
+          - not_null

@@ -1,0 +1,162 @@
+name: dbt Fusion Compile Check
+
+on:
+  push:
+    branches: [ main, cleanup-fusion ]
+  pull_request:
+    # Run on ALL pull requests, regardless of target branch
+    # This ensures students get feedback on their migration branches
+  workflow_dispatch:
+
+# Grant necessary permissions for PR comments
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  DBT_PROFILES_DIR: /home/runner/.dbt
+
+jobs:
+  dbt-fusion-compile:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Create profiles directory
+      run: mkdir -p ~/.dbt
+
+    - name: Create profiles.yml from environment variables
+      run: |
+        cat > ~/.dbt/profiles.yml << EOF
+        snowflake_sales_sandbox_demo:
+          target: dev
+          outputs:
+            dev:
+              type: snowflake
+              account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+              user: ${{ secrets.SNOWFLAKE_USER }}
+              password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+              role: ${{ secrets.SNOWFLAKE_ROLE }}
+              database: ${{ secrets.SNOWFLAKE_DATABASE }}
+              warehouse: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+              schema: ${{ secrets.SNOWFLAKE_SCHEMA }}
+              threads: 4
+              client_session_keep_alive: False
+              query_tag: github-actions-dbt-fusion
+        EOF
+
+    - name: Download and install dbt Fusion
+      run: |
+        echo "Downloading dbt Fusion..."
+        curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+        
+        # Add dbt Fusion to PATH for subsequent steps
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
+        # Check what was actually installed
+        echo "Contents of ~/.local/bin:"
+        ls -la ~/.local/bin/
+        
+        echo "Contents of ~/.bashrc (last 10 lines):"
+        tail -10 ~/.bashrc
+        
+        # Source bashrc to get the updated PATH and alias
+        source ~/.bashrc
+        
+        # Verify installation - try both dbt and dbtf
+        export PATH="$HOME/.local/bin:$PATH"
+        echo "Trying 'dbt --version':"
+        dbt --version || echo "dbt command failed"
+        echo "Trying 'dbtf --version':"
+        dbtf --version || echo "dbtf command failed"
+
+    - name: Install dbt packages
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        
+        # Debug: Check profiles directory and environment
+        echo "DBT_PROFILES_DIR: $DBT_PROFILES_DIR"
+        echo "Contents of ~/.dbt/:"
+        ls -la ~/.dbt/
+        echo "First few lines of profiles.yml:"
+        head -5 ~/.dbt/profiles.yml
+        
+        # Try dbtf first, fallback to dbt if alias doesn't work
+        source ~/.bashrc && dbtf deps || dbt deps
+
+    - name: Run dbt Fusion seed and compile
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        # Try dbtf first, fallback to dbt if alias doesn't work
+        source ~/.bashrc && dbtf seed || dbt seed
+        source ~/.bashrc && dbtf compile || dbt compile
+
+    - name: Run dbt Fusion parse (additional validation)
+      run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        # Try dbtf first, fallback to dbt if alias doesn't work
+        source ~/.bashrc && dbtf parse || dbt parse
+
+    - name: Upload compilation artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: dbt-fusion-artifacts
+        path: |
+          target/
+          logs/
+        retention-days: 7
+
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      continue-on-error: true
+      with:
+        script: |
+          try {
+            // Check if this is actually a PR context
+            if (!context.issue || !context.issue.number) {
+              console.log('No PR context found, skipping comment');
+              return;
+            }
+            
+            let comment = '## 🚀 dbt Fusion Compile Results\n\n';
+            
+            if (process.env.COMPILE_SUCCESS === 'true') {
+              comment += '✅ **Compilation successful!** Your dbt project compiles successfully with dbt Fusion.';
+            } else {
+              comment += '❌ **Compilation failed.** Please check the logs for details.';
+            }
+            
+            console.log(`Attempting to comment on PR #${context.issue.number}`);
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+            console.log('Successfully posted PR comment');
+          } catch (error) {
+            console.log('Failed to post PR comment:', error.message);
+            console.log('This is likely due to insufficient permissions or repository settings');
+            console.log('The workflow will continue without posting the comment');
+          }
+      env:
+        COMPILE_SUCCESS: ${{ job.status == 'success' }}
+
+    - name: Summary
+      if: always()
+      run: |
+        echo "## 🚀 dbt Fusion Compile Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ **Compilation successful!** Your dbt project compiles successfully with dbt Fusion." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Compilation failed.** Please check the logs for details." >> $GITHUB_STEP_SUMMARY
+        fi

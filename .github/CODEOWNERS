@@ -1,0 +1,37 @@
+# CODEOWNERS file for dbt project
+# This file defines who owns different parts of the codebase
+# See https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global fallback - all files are owned by the data team
+* @Stevedow99
+
+# dbt project configuration
+dbt_project.yml @Stevedow99
+packages.yml @Stevedow99
+package-lock.yml @Stevedow99
+
+# Models - data engineering team owns all models
+/models/ @Stevedow99
+
+# Seeds - data engineering team owns seed data
+/seeds/ @Stevedow99
+
+# Macros - data engineering team owns macros
+/macros/ @Stevedow99
+
+# Tests - data engineering team owns tests
+/tests/ @Stevedow99
+/data-tests/ @Stevedow99
+
+# Documentation
+README.md @Stevedow99
+/docs/ @Stevedow99
+
+# CI/CD and workflows
+/.github/ @Stevedow99
+
+# Analysis files
+/analyses/ @Stevedow99
+
+# Specific critical files that require extra review
+/models/marts/ @Stevedow99

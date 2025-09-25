@@ -1,0 +1,152 @@
+version: 2
+
+seeds:
+  - name: raw_customers
+    description: "Raw customer data for the jaffle shop"
+    columns:
+      - name: id
+        description: "Unique identifier for each customer (UUID)"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Full name of the customer"
+        tests:
+          - not_null
+
+  - name: raw_orders
+    description: "Raw order data containing purchase information"
+    columns:
+      - name: id
+        description: "Unique identifier for each order (UUID)"
+        tests:
+          - unique
+          - not_null
+      - name: customer
+        description: "Foreign key to customers table (customer ID)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('raw_customers')
+              field: id
+      - name: ordered_at
+        description: "Timestamp when the order was placed"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Foreign key to stores table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('raw_stores')
+              field: id
+      - name: subtotal
+        description: "Order subtotal in cents before tax"
+        tests:
+          - not_null
+      - name: tax_paid
+        description: "Tax amount paid in cents"
+        tests:
+          - not_null
+      - name: order_total
+        description: "Total order amount in cents (subtotal + tax)"
+        tests:
+          - not_null
+
+  - name: raw_products
+    description: "Product catalog with pricing and descriptions"
+    columns:
+      - name: sku
+        description: "Stock Keeping Unit - unique product identifier"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Product name"
+        tests:
+          - not_null
+      - name: type
+        description: "Product category (e.g., jaffle, beverage)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['jaffle', 'beverage', 'side']
+      - name: price
+        description: "Product price in cents"
+        tests:
+          - not_null
+      - name: description
+        description: "Detailed product description"
+
+  - name: raw_items
+    description: "Individual items within each order (order line items)"
+    columns:
+      - name: id
+        description: "Unique identifier for each order item (UUID)"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Foreign key to orders table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('raw_orders')
+              field: id
+      - name: sku
+        description: "Foreign key to products table"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('raw_products')
+              field: sku
+
+  - name: raw_stores
+    description: "Store locations and tax information"
+    columns:
+      - name: id
+        description: "Unique identifier for each store (UUID)"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Store location name/city"
+        tests:
+          - not_null
+      - name: opened_at
+        description: "Date and time when the store opened"
+        tests:
+          - not_null
+      - name: tax_rate
+        description: "Tax rate for the store location (decimal)"
+        tests:
+          - not_null
+
+  - name: raw_supplies
+    description: "Supply costs and inventory for products"
+    columns:
+      - name: id
+        description: "Supply identifier (has intentional duplicates for demo purposes)"
+        tests:
+          - not_null
+      - name: name
+        description: "Name of the supply item"
+        tests:
+          - not_null
+      - name: cost
+        description: "Cost of the supply item in cents"
+        tests:
+          - not_null
+      - name: perishable
+        description: "Whether the supply item is perishable (True/False)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['True', 'False']
+      - name: sku
+        description: "Associated product SKU"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('raw_products')
+              field: sku

@@ -1,12 +1,17 @@
-name: 'dbt_dugout'
-version: '1.0.0'
 config-version: 2
 
-profile: 'sa_snowflake'
+name: "jaffle_shop"
+version: "3.0.0"
+require-dbt-version: ">=1.5.0"
+
+dbt-cloud:
+    project-id: 70403103992621
+
+profile: snowflake_sales_sandbox_demo # Put your profile here
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
-test-paths: ["tests"]
+test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
@@ -16,65 +21,80 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
-models:
-  dbt_dugout:
-    +freshness:
-      build_after: 
-        count: 1
-        period: minute
-      updates_on: any
-    # Staging models
-    staging:
-      +schema: staging
-      +materialized: view
-      stg_players:
-        +description: "Staged player data with basic transformations"
-      stg_salaries:
-        +description: "Staged salary data with basic transformations"
-      stg_teams:
-        +description: "Staged team data with basic transformations"
-      stg_game_stats:
-        +description: "Staged game statistics with derived metrics"
+vars:
+  "dbt_date:time_zone": "America/Los_Angeles"
+  # Saved query export configuration - soft blocker
+  enable_saved_query_exports: true
+  saved_query_export_path: "exports/saved_queries"
+  # Additional variables that may cause issues
+  environment: "production"  # DEPRECATED: Should use target.name
+  debug_mode: true  # Used by deprecated macros
+  base_url: "https://api.example.com"  # Used in deprecated var usage
+  expected_rows_customers: 1000
+  expected_rows_orders: 5000
 
-    # Intermediate models
-    intermediate:
-      +schema: intermediate
-      +materialized: view
-      int_pitcher_performance_trends:
-        +description: "Intermediate model for pitcher performance analysis"
-      int_player_value_analysis:
-        +description: "Intermediate model for player value analysis"
-
-    # Mart models
-    marts:
-      +schema: mart
-      +materialized: table
-      dim_roster:
-        +description: "Dimension table for player roster information"
-      fct_player_salaries:
-        +description: "Fact table for player salary information"
-      pitcher_salary_analysis:
-        +description: "Analysis of pitcher salaries and performance"
-      player_performance_analysis:
-        +description: "Analysis of player performance metrics"
+# Behavior change flags for modern dbt practices and migration testing
+flags:
+  require_explicit_package_overrides_for_builtin_materializations: true
+  require_model_names_without_spaces: true
+  source_freshness_run_project_hooks: true
+  restrict_direct_pg_catalog_access: false
+  skip_nodes_if_on_run_start_fails: false
+  state_modified_compare_more_unrendered_values: true
+  require_yaml_configuration_for_mf_time_spines: false
+  require_batched_execution_for_custom_microbatch_strategy: false
+  require_nested_cumulative_type_params: false
+  validate_macro_args: true
+  require_generic_test_arguments_property: true
+  
+# Saved queries configuration disabled - represents soft blocker for Fusion migration
+# saved-queries:
+#   jaffle_shop:
+#     +export_as: table
+#     +export_limit: 10000
+#     +export_to_cloud: true
 
 seeds:
-  dbt_dugout:
-    +enabled: false
-    raw_players:
-      +description: "Raw player data"
-    raw_salaries:
-      +description: "Raw salary data"
-    raw_teams:
-      +description: "Raw team data"
-    raw_game_stats:
-      +description: "Raw game statistics"
+  jaffle_shop:
+    +database: "{{ target.database }}"
+    +schema: raw
+    jaffle-data:
+      +enabled: true
 
-vars:
-  # Add any project variables here
-  start_date: '2019-01-01'
-  end_date: '2023-12-31'
-
-tests:
-  +severity: warn
-  +store_failures: true
+models:
+  jaffle_shop:
+    staging:
+      +materialized: view
+      # Deprecated test patterns model
+      stg_deprecated_tests:
+        +materialized: view
+        +warn_error: true  # DEPRECATED: Should use warn-error-options
+    marts:
+      +materialized: table
+      # Iceberg table configurations - soft blocker
+      order_history_iceberg:
+        +materialized: iceberg_table
+        +file_format: parquet
+        +table_type: iceberg
+        +partition_by: ["order_date"]
+        +clustered_by: ["customer_id"]
+        +table_properties:
+          "+format-version": "2"
+          "+write.target-file-size-bytes": "134217728"
+          "+write.delete.mode": "merge-on-read"
+      # Custom materialization models
+      advanced_cloned_table:
+        +materialized: view
+      customer_scd2:
+        +materialized: table
+      # Models with advanced query comments
+      logging_dependent_model:
+        +query_comment: "Advanced query comment model with logging"
+      # High-frequency event processing
+      order_events_microbatch:
+        +materialized: incremental
+        +incremental_strategy: delete+insert
+        +unique_key: order_id
+      # Store failures configuration
+      +store_failures: true
+      +store_failures_as: table
