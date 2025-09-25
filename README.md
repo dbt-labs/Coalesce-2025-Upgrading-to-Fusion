@@ -9,7 +9,6 @@ The goal: gain hands-on experience troubleshooting and adapting real-world patte
 ## 🚀 How to use this repo  
 
 ### Please start the dbt Labs LMS Course on this to get a full understanding on getting started and how to check your work:
-#### [Fusion GTM Enablement Program Learning Course](https://learn.getdbt.com/learn/course/fusion-gtm-enablement-program/course-overview/home?page=1)
   
 <br>
 
@@ -21,7 +20,6 @@ The goal: gain hands-on experience troubleshooting and adapting real-world patte
 
 2. **Migrate the project**  
    - update the `profiles.yml` and/or the `dbt_project.yml` file to use your Snowflake `ZNA` creds
-     - if you need help with this, check out this [zoom clip video](https://dbtlabs.zoom.us/clips/share/R1vSsMxcSue5XWG4wR4KLA)
    - Make sure you run `dbt seed` in dbt Core first to create the underlying data sources
    - Update the repo from dbt Core to dbt Fusion.
      - If in VC Code, start by running the migration helper `dbtf init --fusion-upgrade` and follow the workflow
