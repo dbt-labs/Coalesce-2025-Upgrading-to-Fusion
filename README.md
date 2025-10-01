@@ -1,16 +1,12 @@
-# ⚡ dbt Fusion Migration Training Repo  
+# ⚡ dbt Fusion Upgrade Training Repo  
 
-This repo is a **training project for the Field Engineering team** to practice migrating from **dbt Core → dbt Fusion**. It includes a sample dbt Core project plus a mix of **hard and soft blockers** that you’ll need to resolve in order to complete the upgrade.  
+This repo is a **training project for Coalesce Upgrading to Fusion trainees** to practice upgrading from **dbt Core → dbt Fusion**. It includes a sample dbt Core project plus a mix of **hard and soft blockers** that you’ll need to resolve in order to complete the upgrade.  
 
 The goal: gain hands-on experience troubleshooting and adapting real-world patterns during a Core → Fusion migration.  
 
 ---
 
 ## 🚀 How to use this repo  
-
-### Please start the dbt Labs LMS Course on this to get a full understanding on getting started and how to check your work:
-  
-<br>
 
 1. **Create your branch**  
    - Branch off `main` using the format:  
