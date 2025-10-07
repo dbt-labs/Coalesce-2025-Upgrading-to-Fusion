@@ -14,7 +14,7 @@ then modify either one of these files:
 - `dependencies.yml`
 - `packages.yml`
 
-Rather than providing just the newest version, you should provide a compatibility range where so that patches can automaticall be included
+Rather than providing just the newest version, you should provide a compatibility range where so that patches can automatically be included
 
 ```
   - package: fivetran/social_media_reporting
