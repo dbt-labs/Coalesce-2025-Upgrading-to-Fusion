@@ -1,0 +1,19 @@
+upgrading_to_fusion:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: YDA41575
+      user: upgrading_fusion_user
+      role: transformer
+
+      # Keypair config
+      private_key_path: # file path of saved private key file from 1password
+      # or private_key instead of private_key_path
+      private_key_passphrase: # passphrase from 1password entry
+
+      database: dbt_learn
+      warehouse: transformer_coalesce
+      schema: # enter your schema here
+      threads: 4
+      client_session_keep_alive: False
