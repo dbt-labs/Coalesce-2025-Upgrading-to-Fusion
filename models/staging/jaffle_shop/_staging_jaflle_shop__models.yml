@@ -1,0 +1,145 @@
+version: 2
+
+models:
+  - name: stg_customers_with_source
+    description: "Staging customer data using source() function - demonstrates best practice for referencing seeds"
+    columns:
+      - name: customer_id
+        description: "Primary key for customers"
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "Customer first name"
+      - name: last_name
+        description: "Customer last name"
+      - name: customer_name
+        description: "Full customer name (first + last)"
+        tests:
+          - not_null
+
+  - name: stg_customers
+    description: Customer data with basic cleaning and transformation applied, one row per customer.
+    columns:
+      - name: customer_id
+        description: The unique key for each customer.
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_deprecated_tests
+    description: "Model demonstrating deprecated test syntax patterns - tests disabled due to intentional data quality issues"
+    columns:
+      - name: customer_id
+        description: "Customer identifier"
+        # Tests disabled because this model intentionally demonstrates poor data quality
+        
+      - name: email
+        description: "Customer email"
+        # Tests disabled because this model intentionally demonstrates poor data quality
+          
+      - name: order_total
+        description: "Total order amount"
+          
+      - name: created_date
+        description: "Record creation date"
+        
+    # Tests disabled for this deprecated example model
+          
+# Removed the problematic raw_data source entirely to eliminate errors
+
+# DEPRECATED: Global test configurations at wrong level
+# test-paths: ["tests"]  # Should be in dbt_project.yml, commented out to avoid warnings
+
+# NOTE: Removed macro references as they don't belong in model YAML files
+  - name: stg_locations
+    description: List of open locations with basic cleaning and transformation applied, one row per location.
+    columns:
+      - name: location_id
+        description: The unique key for each location.
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_order_items
+    description: Individual food and drink items that make up our orders, one row per item.
+    columns:
+      - name: order_item_id
+        description: The unique key for each order item.
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        description: The corresponding order each order item belongs to
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+
+  - name: stg_orders
+    description: Order data with basic cleaning and transformation applied, one row per order.
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "order_total - tax_paid = subtotal"
+    columns:
+      - name: order_id
+        description: The unique key for each order.
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_products
+    description: Product (food and drink items that can be ordered) data with basic cleaning and transformation applied, one row per product.
+    columns:
+      - name: product_id
+        description: The unique key for each product.
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_supplies
+    description: >
+      List of our supply expenses data with basic cleaning and transformation applied.
+
+      One row per supply cost, not per supply. As supply costs fluctuate they receive a new row with a new UUID. Thus there can be multiple rows per supply_id.
+    columns:
+      - name: supply_uuid
+        description: The unique key of our supplies per cost.
+        tests:
+          - not_null
+          - unique
+
+unit_tests:
+  - name: test_does_location_opened_at_trunc_to_date
+    description: "Check that opened_at timestamp is properly truncated to a date."
+    model: stg_locations
+    given:
+      - input: ref('raw_stores')
+        rows:
+          - {
+              id: 1,
+              name: "Vice City",
+              tax_rate: 0.2,
+              opened_at: "2016-09-01T00:00:00",
+            }
+          - {
+              id: 2,
+              name: "San Andreas",
+              tax_rate: 0.1,
+              opened_at: "2079-10-27T23:59:59.9999",
+            }
+    expect:
+      rows:
+        - {
+            location_id: 1,
+            location_name: "Vice City",
+            tax_rate: 0.2,
+            opened_date: "2016-09-01",
+          }
+        - {
+            location_id: 2,
+            location_name: "San Andreas",
+            tax_rate: 0.1,
+            opened_date: "2079-10-27",
+          }

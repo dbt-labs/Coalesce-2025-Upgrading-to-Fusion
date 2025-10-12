@@ -1,0 +1,116 @@
+models:
+  - name: customers
+    description: Customer overview data mart, offering key details for each unique customer. One row per customer.
+    tests:
+      - dbt_utils.expression_is_true:
+            expression: "lifetime_spend_pretax + lifetime_tax_paid = lifetime_spend"
+    columns:
+      - name: customer_id
+        description: The unique key of the orders mart.
+        tests:
+          - not_null
+          - unique
+      - name: customer_name
+        description: Customers' full name.
+      - name: count_lifetime_orders
+        description: Total number of orders a customer has ever placed.
+      - name: first_ordered_at
+        description: The timestamp when a customer placed their first order.
+      - name: last_ordered_at
+        description: The timestamp of a customer's most recent order.
+      - name: lifetime_spend_pretax
+        description: The sum of all the pre-tax subtotals of every order a customer has placed.
+      - name: lifetime_tax_paid
+        description: The sum of all the tax portion of every order a customer has placed.
+      - name: lifetime_spend
+        description: The sum of all the order totals (including tax) that a customer has ever placed.
+      - name: customer_type
+        description: Options are 'new' or 'returning', indicating if a customer has ordered more than once or has only placed their first order to date.
+        tests:
+          - accepted_values:
+                values: ["new", "returning"]
+
+# Semantic models and exposures for customer analytics
+# Advanced dbt Mesh capabilities with MetricFlow integration
+  - name: customer_analytics_with_contracts
+    description: "Customer analytics with enhanced data contracts"
+    
+    # Model contracts for data quality enforcement
+    access: protected
+    contract:
+      enforced: true
+      
+    constraints:
+      - type: not_null
+        columns: [customer_id, email]
+      - type: unique
+        columns: [customer_id]
+      - type: check
+        expression: "customer_id > 0"
+      - type: check  
+        expression: "lifetime_value >= 0"
+      - type: foreign_key
+        columns: [customer_id]
+        references:
+          to: ref('customers')
+          columns: [customer_id]
+    
+    columns:
+      - name: customer_id
+        description: "Unique customer identifier"
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: unique
+        tests:
+          - not_null
+          - unique
+          
+      - name: email
+        description: "Customer email address"
+        data_type: varchar(255)
+        constraints:
+          - type: not_null
+        tests:
+          - not_null
+          - dbt_utils.not_empty_string
+              
+      - name: first_name
+        description: "Customer first name"
+        data_type: varchar(100)
+        
+      - name: last_name  
+        description: "Customer last name"
+        data_type: varchar(100)
+        
+      - name: lifetime_value
+        description: "Customer lifetime value in USD"
+        data_type: decimal(10,2)
+        constraints:
+          - type: check
+            expression: "lifetime_value >= 0"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1000000
+              
+      - name: customer_tier
+        description: "Customer tier based on spending"
+        data_type: varchar(20)
+        constraints:
+          - type: check
+            expression: "customer_tier IN ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM')"
+        tests:
+          - accepted_values:
+              values: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM']
+              
+      - name: last_ordered_at
+        description: "Date of customer's most recent order"
+        data_type: timestamp_ntz
+        
+      - name: total_orders
+        description: "Total number of orders placed by customer"
+        data_type: integer
+        constraints:
+          - type: check
+            expression: "total_orders >= 0"

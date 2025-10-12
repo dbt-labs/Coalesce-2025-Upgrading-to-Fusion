@@ -7,7 +7,7 @@ require-dbt-version: ">=1.5.0"
 dbt-cloud:
     project-id: 456756 # update with your project ID in workshop account!
 
-profile: upgrading_to_fusion # Put your profile here
+profile: dbt_pro_serv # Put your profile here
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -53,13 +53,6 @@ flags:
 #     +export_as: table
 #     +export_limit: 10000
 #     +export_to_cloud: true
-
-seeds:
-  jaffle_shop:
-    +database: "{{ target.database }}"
-    +schema: raw
-    jaffle-data:
-      +enabled: true
 
 models:
   jaffle_shop:
