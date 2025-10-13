@@ -1,6 +1,6 @@
 {{
   config(
-    materialized='table',
+    materialised='table',
     description='Critical analytics dashboard data that depends on Python-based customer segmentation'
   )
 }}

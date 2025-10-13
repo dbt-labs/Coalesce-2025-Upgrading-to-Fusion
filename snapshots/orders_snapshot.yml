@@ -2,7 +2,7 @@ snapshots:
   - name: orders_snapshot
     relation: source('jaffle_shop', 'raw_orders')
     config:
-      target_schema: snapshots
+      schema: snapshots
       unique_key: id
       strategy: timestamp
       updated_at: ordered_at

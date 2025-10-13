@@ -92,6 +92,3 @@ models:
         +materialized: incremental
         +incremental_strategy: delete+insert
         +unique_key: order_id
-      # Store failures configuration
-      +store_failures: true
-      +store_failures_as: table

@@ -22,11 +22,11 @@ enriched as (
         daily_revenue,
         
         -- BREAKING: These cross-db macros moved from dbt_utils to dbt namespace
-        {{ dbt_utils.dateadd('day', 1, 'order_date') }} as next_day,
-        {{ dbt_utils.datediff('order_date', dbt_utils.current_timestamp(), 'day') }} as days_ago,
+        {{ dateadd('day', 1, 'order_date') }} as next_day,
+        {{ datediff('order_date', current_timestamp(), 'day') }} as days_ago,
         
         -- BREAKING: split_part moved to dbt namespace
-        {{ dbt_utils.split_part('order_date', "'-'", 1) }} as order_year
+        {{ split_part('order_date', "'-'", 1) }} as order_year
     from daily_orders
 )
 

@@ -97,3 +97,7 @@ sources:
             description: "Supply cost in cents"
           - name: perishable
             description: "Whether the supply is perishable"
+
+  - name: unused_source
+    database: RAW
+    schema: UPGRADING_TO_FUSION

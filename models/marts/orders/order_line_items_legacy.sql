@@ -34,7 +34,7 @@ joined as (
         p.product_price as unit_price,
         
         -- This will also BREAK - current_timestamp() moved to dbt namespace
-        {{ dbt_utils.current_timestamp() }} as processed_at,
+        {{ current_timestamp() }} as processed_at,
         
         1 * p.product_price as line_total -- Using default quantity of 1
         
