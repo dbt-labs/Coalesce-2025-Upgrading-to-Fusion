@@ -1,29 +1,30 @@
 {{
   config(
     materialized='table',
-    enable_audit_logging=true,
-    audit_table_suffix='_audit_log',
-    data_classification='confidential',
-    retention_days=180,
-    enable_pii_masking=true
+    add_row_number=true,
+    add_hash_key=true,
+    business_unit='ecommerce',
+    enable_audit_fields=true
   )
 }}
 
 {#- 
   This model uses completely custom organizational configs that Fusion doesn't support.
-  These are made-up governance/audit configs that would be specific to a company.
+  These are made-up configs for adding computed columns.
   Trainees need to:
-  1. Move custom configs (enable_audit_logging, audit_table_suffix, data_classification, etc.) to meta 
-  2. Update the custom_audit_settings macro to reference config.get('meta')
+  1. Move custom configs (add_row_number, add_hash_key, business_unit, enable_audit_fields) to meta 
+  2. Update the add_custom_columns macro to reference config.get('meta')
 -#}
 
 select 
   id,
-  user_id,
-  order_date,
-  status,
-  created_at,
-  updated_at
+  customer,
+  ordered_at,
+  store_id,
+  subtotal,
+  tax_paid,
+  order_total
+  
+  {{ add_custom_columns() }}
+  
 from {{ source('jaffle_shop', 'raw_orders') }}
-
-{{ custom_audit_settings() }}

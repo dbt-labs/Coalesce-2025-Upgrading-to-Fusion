@@ -10,7 +10,7 @@
     "/* Schema: " ~ this.schema ~ " */", 
     "/* Database: " ~ this.database ~ " */",
     "/* Target: " ~ target.name ~ " */",
-    "/* Run Started: " ~ run_started_at ~ " */",
+    "/* Run Started: " ~ run_started_at.strftime('%Y-%m-%d %H:%M:%S') ~ " */",
     "/* Invocation ID: " ~ invocation_id ~ " */"
   ] %}
   

@@ -2,23 +2,23 @@
 -- BREAKING: insert_by_period was removed from dbt_utils 1.0.0 and moved to experimental-features repo
 
 {{ config(
-    materialized='insert_by_period',  -- BREAKS: No longer available in dbt_utils 1.0.0+
+    materialized='table',
     period='day',
-    timestamp_field='order_date',
+    timestamp_field='ordered_at',
     start_date='2023-01-01',
     stop_date='2024-12-31',
     tags=['package_breaking_change', 'materialization']
 ) }}
 
 select
-    order_date,
+    ordered_at as order_date,
     customer_id,
     count(*) as order_count,
     sum(order_total) as daily_total
 from {{ ref('stg_orders') }}
 
 {% if is_incremental() %}
-    where order_date >= (select max(order_date) from {{ this }})
+    where ordered_at >= (select max(ordered_at) from {{ this }})
 {% endif %}
 
-group by order_date, customer_id
+group by ordered_at, customer_id

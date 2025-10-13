@@ -1,4 +1,4 @@
--- This model demonstrates breaking changes from dbt_utils 0.9.6 → 1.0.0+
+-- This model demonstrates dbt_utils package breaking changes from dbt_utils 0.9.6 → 1.0.0+
 -- Uses deprecated surrogate_key() function that was replaced by generate_surrogate_key()
 
 {{ config(
@@ -25,18 +25,18 @@ joined as (
         
         oi.order_id,
         oi.product_id,
-        oi.quantity,
+        1 as quantity, -- Default quantity since raw_items doesn't have this column
         
         o.customer_id,
-        o.order_date,
+        o.ordered_at as order_date,
         
-        p.name as product_name,
-        p.price as unit_price,
+        p.product_name,
+        p.product_price as unit_price,
         
         -- This will also BREAK - current_timestamp() moved to dbt namespace
         {{ dbt_utils.current_timestamp() }} as processed_at,
         
-        oi.quantity * p.price as line_total
+        1 * p.product_price as line_total -- Using default quantity of 1
         
     from order_items oi
     left join orders o on oi.order_id = o.order_id

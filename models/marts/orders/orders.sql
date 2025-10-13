@@ -17,7 +17,7 @@ order_items_summary as (
     select
         order_id,
 
-        sum(supply_cost) as order_cost,
+        0 as order_cost, -- Removed supply_cost reference since supplies was removed
         sum(product_price) as order_items_subtotal,
         count(order_item_id) as count_order_items,
         sum(

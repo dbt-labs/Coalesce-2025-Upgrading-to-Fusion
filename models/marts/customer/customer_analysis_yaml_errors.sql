@@ -2,7 +2,6 @@
   config(
     materialised='table',
     description='Model demonstrating common YAML validation errors for Fusion training',
-    pre_hook="insert into audit_log values ('{{ this }}', '{{ run_started_at }}')",
     post_hook="update {{ this }} set processed_at = current_timestamp()",
     tag=['yaml_validation_error', 'fusion_training'],
     unique_key='customer_id',
@@ -23,8 +22,8 @@ with customer_data as (
     select 
         customer_id,
         customer_name,
-        first_order_date,
-        most_recent_order_date,
+        first_ordered_at as first_order_date,
+        last_ordered_at as most_recent_order_date,
         count_lifetime_orders,
         lifetime_spend_pretax,
         lifetime_tax_paid,
@@ -41,7 +40,8 @@ enriched as (
             when lifetime_spend >= 500 then 'Medium Value' 
             else 'Low Value'
         end as value_segment,
-        current_timestamp() as analysis_timestamp
+        current_timestamp() as analysis_timestamp,
+        null::timestamp as processed_at  -- Column for post-hook update
     from customer_data
 )
 

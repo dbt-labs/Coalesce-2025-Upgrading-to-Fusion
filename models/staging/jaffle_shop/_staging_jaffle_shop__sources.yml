@@ -30,7 +30,7 @@ sources:
               - not_null
           - name: user_id
             description: "Foreign key to customers"
-          - name: order_date
+          - name: ordered_at
             description: "Date the order was placed"
           - name: status
             description: "Order status"

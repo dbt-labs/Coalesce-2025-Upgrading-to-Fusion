@@ -15,6 +15,7 @@ test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+docs-paths: ["doc-blocks"]
 
 target-path: "target"
 clean-targets:
@@ -64,7 +65,9 @@ models:
         +warn_error: true  # DEPRECATED: Should use warn-error-options
     marts:
       +materialized: table
-      persist_docs: true   # Missing + prefix (dbt Core ignores, Fusion validates)
+      persist_docs:   # Missing + prefix (dbt Core ignores, Fusion validates)
+        relation: true
+        columns: true
       # Iceberg table configurations - soft blocker
       order_history_iceberg:
         +materialized: iceberg_table
