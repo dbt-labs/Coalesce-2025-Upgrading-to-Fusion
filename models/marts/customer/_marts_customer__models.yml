@@ -1,15 +1,40 @@
+# YAML ANCHORS ISSUE: These standalone anchors work in dbt Core but BREAK in Fusion
+# Fusion requires anchors to be under the 'anchors:' key for stricter YAML validation
+
+customer_id_column: &customer_id_standard
+  name: customer_id
+  description: "Unique customer identifier"
+  data_type: varchar
+  tests:
+    - not_null
+    - unique
+
+email_column: &email_standard  
+  name: email
+  description: "Customer email address"
+  data_type: varchar(255)
+  tests:
+    - not_null
+    - dbt_utils.not_empty_string
+
+tier_column: &customer_tier_standard
+  name: customer_tier
+  description: "Customer tier based on spending"
+  data_type: varchar(20)
+  tests:
+    - accepted_values:
+        values: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM']
+
 models:
   - name: customers
     description: Customer overview data mart, offering key details for each unique customer. One row per customer.
     tests:
       - dbt_utils.expression_is_true:
             expression: "lifetime_spend_pretax + lifetime_tax_paid = lifetime_spend"
+            condition: "count_lifetime_orders > 0"  # BREAKING: condition argument removed in 1.0.0+
     columns:
-      - name: customer_id
-        description: The unique key of the orders mart.
-        tests:
-          - not_null
-          - unique
+      # Using standalone anchor (BREAKS in Fusion)
+      - *customer_id_standard
       - name: customer_name
         description: Customers' full name.
       - name: count_lifetime_orders
@@ -56,25 +81,9 @@ models:
           columns: [customer_id]
     
     columns:
-      - name: customer_id
-        description: "Unique customer identifier"
-        data_type: varchar
-        constraints:
-          - type: not_null
-          - type: unique
-        tests:
-          - not_null
-          - unique
-          
-      - name: email
-        description: "Customer email address"
-        data_type: varchar(255)
-        constraints:
-          - type: not_null
-        tests:
-          - not_null
-          - dbt_utils.not_empty_string
-              
+      # Using standalone anchors (BREAKS in Fusion - should be under 'anchors:' key)
+      - *customer_id_standard
+      - *email_standard
       - name: first_name
         description: "Customer first name"
         data_type: varchar(100)
@@ -94,15 +103,8 @@ models:
               min_value: 0
               max_value: 1000000
               
-      - name: customer_tier
-        description: "Customer tier based on spending"
-        data_type: varchar(20)
-        constraints:
-          - type: check
-            expression: "customer_tier IN ('BRONZE', 'SILVER', 'GOLD', 'PLATINUM')"
-        tests:
-          - accepted_values:
-              values: ['BRONZE', 'SILVER', 'GOLD', 'PLATINUM']
+      # Using standalone anchor for customer tier (BREAKS in Fusion)
+      - *customer_tier_standard
               
       - name: last_ordered_at
         description: "Date of customer's most recent order"
@@ -114,3 +116,33 @@ models:
         constraints:
           - type: check
             expression: "total_orders >= 0"
+  - name: customer_analysis_yaml_errors
+    description: |
+      **YAML VALIDATION ERROR MODEL** - Used for Fusion migration training
+      
+      This model contains several common YAML validation errors that dbt Core 
+      might ignore but Fusion will catch with stricter validation:
+      
+      1. `materialised` instead of `materialized` (British spelling)
+      2. `tag` instead of `tags` (singular vs plural)  
+      3. `indexes` in model config (should be in schema file)
+      4. Missing `+` prefix in dbt_project.yml configurations
+      
+      These errors demonstrate how Fusion's stricter YAML validation catches
+      common configuration mistakes that previously went unnoticed.
+    config:
+      # Additional YAML validation errors in schema files
+      materialised: table     # ERROR: British spelling, should be 'materialized'
+      contract: enforce       # ERROR: Should be under 'contracts' key 
+      access_level: protected # ERROR: Should be 'access'
+    columns:
+      - name: customer_id
+        description: Primary key
+        test:  # ERROR: Should be 'tests' (plural)
+          - unique
+          - not_null
+      - name: value_segment  
+        description: Customer value segmentation
+        constraints:  # ERROR: This should be 'tests' for column-level constraints
+          - type: check
+            expression: "value_segment in ('High Value', 'Medium Value', 'Low Value')"

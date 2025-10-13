@@ -64,6 +64,7 @@ models:
         +warn_error: true  # DEPRECATED: Should use warn-error-options
     marts:
       +materialized: table
+      persist_docs: true   # Missing + prefix (dbt Core ignores, Fusion validates)
       # Iceberg table configurations - soft blocker
       order_history_iceberg:
         +materialized: iceberg_table

@@ -41,7 +41,29 @@ models:
         description: A boolean indicating if this order included any food items.
       - name: is_drink_order
         description: A boolean indicating if this order included any drink items.
-
+  - name: order_items
+    description: Items included in an order
+    columns:
+      - name: order_item_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests: []
 # Advanced dbt features including semantic models, metrics, and saved queries
 # MetricFlow and dbt Mesh capabilities for enhanced analytics
 # Removed unit tests that were causing errors due to model structure issues
+  - name: order_line_items_legacy
+    description: Order line items with deprecated dbt_utils functions that break on upgrade
+    columns:
+      - name: order_item_key
+        description: Surrogate key for order line items
+      - name: order_id
+        description: Foreign key to orders
+      - name: product_id  
+        description: Foreign key to products
+      - name: line_total
+        description: Total amount for this line item
+        
+  - name: daily_orders_cross_db_legacy
+    description: Daily order aggregations using deprecated cross-db macros
