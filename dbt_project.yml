@@ -7,7 +7,7 @@ require-dbt-version: ">=1.5.0"
 dbt-cloud:
     project-id: 456756 # update with your project ID in workshop account!
 
-profile: upgrading_to_fusion # Put your profile here
+profile: dbt_pro_serv # Put your profile here
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -15,6 +15,7 @@ test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+docs-paths: ["doc-blocks"]
 
 target-path: "target"
 clean-targets:
@@ -54,13 +55,6 @@ flags:
 #     +export_limit: 10000
 #     +export_to_cloud: true
 
-seeds:
-  jaffle_shop:
-    +database: "{{ target.database }}"
-    +schema: raw
-    jaffle-data:
-      +enabled: true
-
 models:
   jaffle_shop:
     staging:
@@ -71,6 +65,9 @@ models:
         +warn_error: true  # DEPRECATED: Should use warn-error-options
     marts:
       +materialized: table
+      persist_docs:   # Missing + prefix (dbt Core ignores, Fusion validates)
+        relation: true
+        columns: true
       # Iceberg table configurations - soft blocker
       order_history_iceberg:
         +materialized: iceberg_table
@@ -95,6 +92,3 @@ models:
         +materialized: incremental
         +incremental_strategy: delete+insert
         +unique_key: order_id
-      # Store failures configuration
-      +store_failures: true
-      +store_failures_as: table
