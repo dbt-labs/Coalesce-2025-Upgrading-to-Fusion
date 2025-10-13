@@ -5,7 +5,9 @@ Welcome to the **Coalesce 2025 dbt Fusion Upgrade Training**! This training repo
 ## Workshop Account Setup
 
 Use this link: [https://workshops.us1.dbt.com/workshop](https://workshops.us1.dbt.com/workshop)
+<br>
 Find the course by name: Upgrading to Fusion
+<br>
 Passcode `Coalesce2025!`
 
 ## Helpful Links
