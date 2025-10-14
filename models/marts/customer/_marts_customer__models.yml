@@ -75,9 +75,8 @@ models:
         expression: "lifetime_value >= 0"
       - type: foreign_key
         columns: [customer_id]
-        references:
-          to: ref('customers')
-          columns: [customer_id]
+        to: ref('customers')
+        to_columns: [customer_id]
     
     columns:
       # Using standalone anchors (BREAKS in Fusion - should be under 'anchors:' key)
