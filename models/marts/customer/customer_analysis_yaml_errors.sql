@@ -1,7 +1,8 @@
 {{ config(
     description="Model demonstrating common YAML validation errors for Fusion training", 
     post_hook="update {{ this }} set processed_at = current_timestamp()", 
-    unique_key="customer_id", 
+    unique_key="customer_id",
+    materialized="table",
     indexes=[{'columns': ['customer_id'], 'type': 'hash'}], 
     persist_docs={'relation': True, 'columns': True}, 
     meta={'materialised': 'table', 'tag': ['yaml_validation_error', 'fusion_training']}

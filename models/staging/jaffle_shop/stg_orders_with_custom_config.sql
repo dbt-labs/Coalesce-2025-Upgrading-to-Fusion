@@ -1,6 +1,6 @@
 {{ config(
     materialized="table", 
-    meta={'add_row_number': True, 'add_hash_key': True, 'business_unit': 'ecommerce', 'enable_audit_fields': True}
+    meta={'add_row_number': True, 'add_hash_key': True,'enable_audit_fields': True}
 ) }}
 
 {#- 
