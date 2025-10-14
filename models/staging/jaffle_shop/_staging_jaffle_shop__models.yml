@@ -19,7 +19,7 @@ models:
           - not_null
 
   - name: stg_customers
-    description: "{{ doc('customer_overview') }}"
+    description: "Customer table of ID and name"
     columns:
       - name: customer_id
         description: "Unique identifier for each customer"

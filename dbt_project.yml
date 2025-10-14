@@ -5,9 +5,9 @@ version: "3.0.0"
 require-dbt-version: ">=1.5.0"
 
 dbt-cloud:
-    project-id: 456756 # update with your project ID in workshop account!
+    project-id: 123456 # update with your project ID in workshop account!
 
-profile: dbt_pro_serv # Put your profile here
+profile: upgrading_to_fusion
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -15,7 +15,6 @@ test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-docs-paths: ["doc-blocks"]
 
 target-path: "target"
 clean-targets:
