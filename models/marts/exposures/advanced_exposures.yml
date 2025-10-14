@@ -69,9 +69,7 @@ exposures:
     type: ml
     description: "Data pipeline feeding machine learning model training"
     depends_on:
-      - ref('ml_predictions_python')  # Python model
-      - ref('customer_insights_python')
-      - ref('advanced_state_selection')
+        - ref('advanced_state_selection')
 
     owner:
       name: "Data Science Team"
