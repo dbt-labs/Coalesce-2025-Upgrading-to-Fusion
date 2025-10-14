@@ -1,10 +1,10 @@
--- This model demonstrates another PIVOT (ANY) pattern that breaks Fusion introspection
--- Common use case: pivoting payment methods that may change over time
--- Fusion cannot statically determine the resulting column structure
+-- This model demonstrates a PIVOT pattern refactored for Fusion compatibility
+-- Uses explicit CASE statements instead of PIVOT (ANY) for static column definition
+-- Fusion can now introspect the fixed column structure
 
 {{ config(
-    materialized='view',
-    tags=['introspection_error', 'pivot_any', 'monthly_analysis']
+    tags=['fusion_compatible', 'pivot_explicit', 'monthly_analysis'], 
+    meta={'materialized': 'view'}
 ) }}
 
 with monthly_payment_data as (
@@ -32,20 +32,28 @@ with monthly_payment_data as (
         end
 ),
 
--- BREAKING: Another PIVOT (ANY) that causes Fusion introspection failure
--- This pattern is common when payment methods are added/removed dynamically
+-- FIXED: Explicit pivot with known payment methods
+-- Static columns allow Fusion introspection to succeed
 monthly_revenue_by_payment_method as (
-    select *
+    select
+        order_month,
+        sum(case when payment_method = 'credit_card' then payment_method_revenue else 0 end) as credit_card_revenue,
+        sum(case when payment_method = 'debit_card' then payment_method_revenue else 0 end) as debit_card_revenue,
+        sum(case when payment_method = 'paypal' then payment_method_revenue else 0 end) as paypal_revenue,
+        sum(case when payment_method not in ('credit_card', 'debit_card', 'paypal') then payment_method_revenue else 0 end) as other_revenue,
+        sum(payment_method_revenue) as total_revenue,
+        sum(transaction_count) as total_transactions
     from monthly_payment_data
-    PIVOT (
-        sum(payment_method_revenue)
-        FOR payment_method IN (ANY)  -- PROBLEMATIC: Dynamic columns break static analysis
-    ) as pivot_table
+    group by order_month
 )
 
 select 
-    -- These dynamically generated columns cause introspection errors:
-    -- e.g., CREDIT_CARD_REVENUE, DEBIT_CARD_REVENUE, PAYPAL_REVENUE, etc.
-    *
+    order_month,
+    credit_card_revenue,
+    debit_card_revenue,
+    paypal_revenue,
+    other_revenue,
+    total_revenue,
+    total_transactions
 from monthly_revenue_by_payment_method
-order by 1
+order by order_month

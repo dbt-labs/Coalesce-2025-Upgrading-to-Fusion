@@ -5,7 +5,7 @@ version: "3.0.0"
 require-dbt-version: ">=1.5.0"
 
 dbt-cloud:
-    project-id: 123456 # update with your project ID in workshop account!
+  project-id: 123456   # update with your project ID in workshop account!
 
 profile: upgrading_to_fusion
 
@@ -15,8 +15,6 @@ test-paths: ["data-tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
-
-target-path: "target"
 clean-targets:
   - "target"
   - "dbt_packages"
@@ -46,7 +44,7 @@ flags:
   require_nested_cumulative_type_params: false
   validate_macro_args: true
   require_generic_test_arguments_property: true
-  
+
 # Saved queries configuration disabled - represents soft blocker for Fusion migration
 # saved-queries:
 #   jaffle_shop:
@@ -59,35 +57,37 @@ models:
     staging:
       +materialized: view
       # Deprecated test patterns model
-      stg_deprecated_tests:
-        +materialized: view
-        +warn_error: true  # DEPRECATED: Should use warn-error-options
+      +meta:
+        stg_deprecated_tests:
+          +materialized: view
+          +warn_error: true # DEPRECATED: Should use warn-error-options
     marts:
       +materialized: table
-      persist_docs:   # Missing + prefix (dbt Core ignores, Fusion validates)
+      +persist_docs:  # Missing + prefix (dbt Core ignores, Fusion validates)
         relation: true
         columns: true
       # Iceberg table configurations - soft blocker
-      order_history_iceberg:
-        +materialized: iceberg_table
-        +file_format: parquet
-        +table_type: iceberg
-        +partition_by: ["order_date"]
-        +clustered_by: ["customer_id"]
-        +table_properties:
-          "+format-version": "2"
-          "+write.target-file-size-bytes": "134217728"
-          "+write.delete.mode": "merge-on-read"
+      +meta:
+        order_history_iceberg:
+          +materialized: iceberg_table
+          +file_format: parquet
+          +table_type: iceberg
+          +partition_by: ["order_date"]
+          +clustered_by: ["customer_id"]
+          +table_properties:
+            "+format-version": "2"
+            "+write.target-file-size-bytes": "134217728"
+            "+write.delete.mode": "merge-on-read"
       # Custom materialization models
-      advanced_cloned_table:
-        +materialized: view
-      customer_scd2:
-        +materialized: table
+        advanced_cloned_table:
+          +materialized: view
+        customer_scd2:
+          +materialized: table
       # Models with advanced query comments
-      logging_dependent_model:
-        +query_comment: "Advanced query comment model with logging"
+        logging_dependent_model:
+          +query_comment: "Advanced query comment model with logging"
       # High-frequency event processing
-      order_events_microbatch:
-        +materialized: incremental
-        +incremental_strategy: delete+insert
-        +unique_key: order_id
+        order_events_microbatch:
+          +materialized: incremental
+          +incremental_strategy: delete+insert
+          +unique_key: order_id
