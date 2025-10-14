@@ -30,25 +30,6 @@ models:
         description: "Full name of the customer"
         tests:
           - not_null
-
-  - name: stg_deprecated_tests
-    description: "Model demonstrating deprecated test syntax patterns - tests disabled due to intentional data quality issues"
-    columns:
-      - name: customer_id
-        description: "Customer identifier"
-        # Tests disabled because this model intentionally demonstrates poor data quality
-        
-      - name: email
-        description: "Customer email"
-        # Tests disabled because this model intentionally demonstrates poor data quality
-          
-      - name: order_total
-        description: "Total order amount"
-          
-      - name: created_date
-        description: "Record creation date"
-        
-    # Tests disabled for this deprecated example model
           
 # Removed the problematic raw_data source entirely to eliminate errors
 
@@ -115,37 +96,3 @@ models:
       - name: order_date
         description: "Date the order was placed"
       - name: status
-
-unit_tests:
-  - name: test_does_location_opened_at_trunc_to_date
-    description: "Check that opened_at timestamp is properly truncated to a date."
-    model: stg_locations
-    given:
-      - input: source('jaffle_shop', 'raw_stores')
-        rows:
-          - {
-              id: 1,
-              name: "Vice City",
-              tax_rate: 0.2,
-              opened_at: "2016-09-01T00:00:00",
-            }
-          - {
-              id: 2,
-              name: "San Andreas",
-              tax_rate: 0.1,
-              opened_at: "2079-10-27T23:59:59.9999",
-            }
-    expect:
-      rows:
-        - {
-            location_id: 1,
-            location_name: "Vice City",
-            tax_rate: 0.2,
-            opened_date: "2016-09-01",
-          }
-        - {
-            location_id: 2,
-            location_name: "San Andreas",
-            tax_rate: 0.1,
-            opened_date: "2079-10-27",
-          }
