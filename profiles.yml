@@ -7,10 +7,11 @@ upgrading_to_fusion:
       user: training_user
       role: transformer
 
-      password: # enter password from training slides here
+      password: dbt_Training123!
+      authenticator: username_password_mfa 
 
       database: dbt_learn
       warehouse: transformer_coalesce
-      schema: # enter your schema here
+      schema: dbt_mtijdeman
       threads: 4
       client_session_keep_alive: False
