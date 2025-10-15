@@ -1,3 +1,5 @@
+{{ config(enabled=false) }}
+
 def model(dbt, session):
     import pandas as pd
 
