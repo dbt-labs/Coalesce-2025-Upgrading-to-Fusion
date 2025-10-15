@@ -7,7 +7,7 @@ require-dbt-version: ">=1.5.0"
 dbt-cloud:
     project-id: 123456 # update with your project ID in workshop account!
 
-profile: upgrading_to_fusion
+profile: jaffle_shop
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
