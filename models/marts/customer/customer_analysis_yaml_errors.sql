@@ -4,7 +4,8 @@
     unique_key="customer_id", 
     indexes=[{'columns': ['customer_id'], 'type': 'hash'}], 
     persist_docs={'relation': True, 'columns': True}, 
-    meta={'materialised': 'table', 'tag': ['yaml_validation_error', 'fusion_training']}
+    meta={'materialised': 'table', 'tag': ['yaml_validation_error', 'fusion_training']},
+    static_analysis='unsafe'
 ) }}
 -- ABOVE
 -- YAML VALIDATION ERROR: Should be 'materialized' (British vs American spelling)
