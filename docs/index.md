@@ -14,7 +14,7 @@ Passcode `Coalesce2025!`
 
 - Google Slides: [https://docs.google.com/presentation/d/19SHxMd5H2_OF4MqJgyCIv96MrxGpXpGu_DPtpRYAwhg/edit?usp=sharing](https://docs.google.com/presentation/d/19SHxMd5H2_OF4MqJgyCIv96MrxGpXpGu_DPtpRYAwhg/edit?usp=sharing)
 - Demo Repository: [https://github.com/dbt-labs/Coalesce-2025-Upgrading-to-Fusion](https://github.com/dbt-labs/Coalesce-2025-Upgrading-to-Fusion)
-
+- [Clone Environment Setup](https://share.1password.com/s#0qp-sDi8LWrwr6TwWojHl3J2-e_1tQPj0BPWlQswQQs)
 
 ## Getting your project compiling
 
