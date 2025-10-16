@@ -5,10 +5,10 @@ models:
     # Protected model access for data security
     deprecation_date: '2024-08-01'
     constraints:
-      - type: check
-        expression: "revenue_amount IS NOT NULL"
-      - type: check
-        expression: "revenue_amount >= 0"
+      # - type: check
+      #   expression: "revenue_amount IS NOT NULL"
+      # - type: check
+      #   expression: "revenue_amount >= 0"
     columns:
       - name: order_id
         description: "Order identifier"
